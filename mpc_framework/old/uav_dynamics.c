@@ -46,6 +46,8 @@ double *uavDynamics( double t, int n_state, double x[], double u[] )
 {
   double c = (u[0] + u[1] + u[2] + u[3])/m;
   double halfsqrt2 = sqrt(2)/2;
+  double ground_effect = 0;
+  double G = ground_effect - g;
 
   double *xprime;
   xprime = ( double * ) malloc ( n_state * sizeof ( double ) );
@@ -55,7 +57,7 @@ double *uavDynamics( double t, int n_state, double x[], double u[] )
   xprime[2]  = x[5];
   xprime[3]  =  2*(x[6]*x[8] + x[7]*x[9])*c;
   xprime[4]  =  2*(x[8]*x[9] - x[6]*x[7])*c;
-  xprime[5]  = -g   + (x[6]*x[6] - x[7]*x[7] - x[8]*x[8] - x[9]*x[9])*c;
+  xprime[5]  = -G   + (x[6]*x[6] - x[7]*x[7] - x[8]*x[8] - x[9]*x[9])*c;
   xprime[6]  = 0.5*(            - x[10]*x[7] - x[11]*x[8] - x[12]*x[9]);
   xprime[7]  = 0.5*( x[10]*x[6]              + x[12]*x[8] - x[11]*x[9]);
   xprime[8]  = 0.5*( x[11]*x[6] - x[12]*x[7]              - x[10]*x[9]);
@@ -300,7 +302,7 @@ double * simulateUavDynamics(double t0, double tf, double dt, double *x0, double
     u[2] = u0[j*4 + 2];
     u[3] = u0[j*4 + 3];
 
-    x1 = rk4 ( t0, n_state, &X[pointer_final_state-n_state], u, dt, uavDynamics );
+    x1 = RungeKutta4 ( t0, dt, n_state, &X[pointer_final_state-n_state], u, uavDynamics );
 
     for ( int i = 0; i < n_state; i++, pointer_final_state++ )
       X[pointer_final_state] = x1[i];
@@ -310,19 +312,6 @@ double * simulateUavDynamics(double t0, double tf, double dt, double *x0, double
 
   return X;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -494,7 +483,7 @@ double * simulateUavDynamicsPDController(double t0, double tf, double dt, double
   double *x1;
   for(int j = 0; j < n_step-1; j++, t0 += dt)
   {
-    x1 = rk4 ( t0, n_state, &X[pointer_final_state-n_state], xfinal, dt, uavDynamicsPDController );
+    x1 = RungeKutta4 ( t0, dt,n_state, &X[pointer_final_state-n_state], xfinal, uavDynamicsPDController );
 
     for ( int i = 0; i < n_state; i++, pointer_final_state++ )
       X[pointer_final_state] = x1[i];

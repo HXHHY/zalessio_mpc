@@ -4,9 +4,12 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <math.h>
+#include <ctime>
 
 
-#include "rpg_slq_mpc/sequential_linear_quadratic.h"
+
+//#include "rpg_slq_mpc/sequential_linear_quadratic.h"
+#include "uav_dynamics.c"
 
 void test_uav_with_given_input()
 {
@@ -76,14 +79,18 @@ void test_uav_with_given_final_state ( )
   xfinal[6] = 0.0; xfinal[7] = 0.0; xfinal[8] = 0.0;
 
   double *X;
-  //X = simulateUavDynamicsPDController( t0,  tf,  dt, x0, xfinal, n_state);
+  clock_t begin = clock();
+  X = simulateUavDynamicsPDController( t0,  tf,  dt, x0, xfinal, n_state);
+  clock_t end = clock();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  printf("%g seconds\n", elapsed_secs);
 
-  printf ("rk4 takes a Runge Kutta step for a vector ODE.\n" );
+  /*printf ("rk4 takes a Runge Kutta step for a vector ODE.\n" );
   printf ( "\n" );
   printf ( "               t               x               y              z\n" );
   printf ( "\n" );
   for ( i = 0; i < n_step; i++, t0 += dt)
-    printf ( "  %14.8g  %14.8g  %14.8g %14.8g\n", t0, X[i*n_state+0], X[i*n_state+1], X[i*n_state+2] );
+    printf ( "  %14.8g  %14.8g  %14.8g %14.8g\n", t0, X[i*n_state+0], X[i*n_state+1], X[i*n_state+2] );*/
 
   return;
 }

@@ -8,11 +8,11 @@
 #ifndef RK4_ODE_SOLVER
 #define RK4_ODE_SOLVER
 
-# include <stdlib.h>
-# include <stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 /*
-  rk4 takes one Runge-Kutta step for a vector ODE.
+  RungeKutta4 takes one Runge-Kutta step for a vector ODE.
   It wants as input the initial value problem:
       dx/dt = f ( t, x, u )
       x(t0) = x0
@@ -30,8 +30,7 @@
     Output: - double rk4[n_state], the fourth-order Runge-Kutta solution
     				  estimate at time t0+dt.
 */
-
-double * rk4 ( double t0, int n_state, double x0[], double u[], double dt, double *f ( double t, int n_state, double x[], double u[] ) )
+double * RungeKutta4( double t0, double dt, int n_state, double x0[], double u[], double *f ( double t, int n_state, double x[], double u[] ) )
 {
   double *f0; double *f1; double *f2; double *f3;
   double t1;  double t2;  double t3;

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>rpg_slq_mpc</name>
+  <name>mpc_framework</name>
   <version>0.0.0</version>
-  <description>The rpg_slq_mpc package</description>
+  <description>The mpc_framework package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

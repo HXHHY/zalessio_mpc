@@ -8,7 +8,8 @@
  #ifndef SLQ_ALGORITHM_H
  #define SLQ_ALGORITHM_H
 
- #include "ros/ros.h"
+#include "ros/ros.h"
+#include <vector>
 
 namespace sequential_linear_quadratic
 {

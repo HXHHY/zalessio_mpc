@@ -11,7 +11,6 @@
 #include "rpg_slq_mpc/sequential_linear_quadratic.h"
 #include "uav_dynamics.c"
 
-
 namespace sequential_linear_quadratic
 {
   SLQAlgorithm::SLQAlgorithm(double dt, int n_state, int n_input, double *x_final)
@@ -50,13 +49,25 @@ namespace sequential_linear_quadratic
 
   void SLQAlgorithm::solveLQProblem(){
 
-    double t = 0;
-    double * A;
-    double * B;
-    for(int i = 0; i < n_step_ + 1; i++ , t+=dt_){
-      A = uavDynamicsLinearizeA(t, n_state_,  &x_predict_[i*n_state_], &controls_[i*n_input_] );
-      B = uavDynamicsLinearizeB(t, n_state_,  n_input_,  &x_predict_[i*n_state_], &controls_[i*n_input_] );
+    /*double t = 0;
+    std::vector<double *> A;
+    std::vector<double *> B;
+    for(int i = 0; i < n_step_; i++ , t+=dt_){
+      A[i] = uavDynamicsLinearizeA(t, n_state_,  &x_predict_[i*n_state_], &controls_[i*n_input_] );
+      B[i] = uavDynamicsLinearizeB(t, n_state_,  n_input_,  &x_predict_[i*n_state_], &controls_[i*n_input_] );
     }
+
+    for(int i = n_step_ ; i >= 0;i-- , t+=dt_){
+      H = R + Bt[i]*P_tp1_*B[i];
+      G = Bt[i]*P_tp1_*A[i];
+      g = r + Bt[i]*p_tp1;
+      K[i] = -Hinv*G;
+      l[i] = -Hinv*g;
+      P_t = Q + At[i]*P_tp1*A[i] + Kt[i]*H*K[i]*G + Gt*K[i];
+      p_t = q + At[i]*p_tp1      + Kt[i]*H*l[i] + lt[i]*g + Gt*l[i];
+      P_tp1 = P_t;
+      p_tp1 = p_t;
+    }*/
 
   }
 

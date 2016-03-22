@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rpg_slq_mpc)
+project(mpc_framework)
 
 find_package(catkin_simple REQUIRED)
 
@@ -29,5 +29,5 @@ include_directories(
 )
 
 catkin_simple()
-cs_add_executable(rk4_test src/rk4_test.cpp  src/sequential_linear_quadratic.cpp )
+cs_add_executable(dynamics_test src/uav_dynamics.cpp )
 cs_export()
