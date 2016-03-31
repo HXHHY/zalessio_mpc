@@ -17,12 +17,15 @@
   <build_depend>eigen_catkin</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>quad_msgs</build_depend>
+  <build_depend>rapid_trajectories</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>eigen_catkin</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>quad_msgs</run_depend>
+  <run_depend>rapid_trajectories</run_depend>
+
 
 
 

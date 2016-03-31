@@ -38,12 +38,14 @@ void ModelPredictiveControlFramework::FinalPoseCallback(const geometry_msgs::Pos
 void ModelPredictiveControlFramework::OdometryUgvCallback(
     const nav_msgs::OdometryConstPtr& odometry_msg)
 {
+  ROS_INFO_ONCE("MPC controller got first odometry message from UGV.");
+
   // Set final state
   nav_msgs::Odometry odometry_ugv_;
   odometry_ugv_.header = odometry_msg->header;
   odometry_ugv_.pose = odometry_msg->pose;
   odometry_ugv_.twist = odometry_msg->twist;
-  mpc_calculations.SetFinalCondition(odometry_ugv_);
+  mpc_calculations.SetPossibleFinalConditions(odometry_ugv_);
 }
 
 void ModelPredictiveControlFramework::OdometryUavCallback(
@@ -65,7 +67,7 @@ void ModelPredictiveControlFramework::OdometryUavCallback(
   // Publish Control Input
   quad_msgs::BodyRateCommand msg_angles_rate_thrust_;
   msg_angles_rate_thrust_.header = odometry_msg->header;
-  //msg_angles_rate_thrust_.execution_time = odometry_msg->header.timestamp;
+  msg_angles_rate_thrust_.execution_time = odometry_msg->header.stamp;
   msg_angles_rate_thrust_.bodyrates.x = angles_rate_thrust_(0);
   msg_angles_rate_thrust_.bodyrates.y = angles_rate_thrust_(1);
   msg_angles_rate_thrust_.bodyrates.z = angles_rate_thrust_(2);

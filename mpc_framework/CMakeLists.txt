@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mpc_framework)
 
+add_definitions(-std=c++11)
+
 find_package(catkin_simple REQUIRED)
 catkin_simple()
 
@@ -9,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   quad_msgs
+  rapid_trajectories
 )
 
 include_directories(
@@ -18,9 +21,9 @@ include_directories(
 
 set(SOURCE_FILES
   src/mpc_calculations.cpp
+  src/mpc_dynamics.cpp
+  src/mpc_trajectories.cpp
 )
-
-cs_add_executable(dynamics_test src/uav_dynamics.cpp )
 
 cs_add_library(${PROJECT_NAME}_lib ${SOURCE_FILES})
 

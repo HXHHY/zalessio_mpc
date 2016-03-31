@@ -189,9 +189,9 @@ int main(int argc, char **argv)
     //integrate( uavDynamics , x , t0 , tf , dt, push_back_state_and_time( final_solution , final_times )  );
     clock_t end = clock();
 
-    /*for(int i = 0; i < final_solution.size(); i++){
-      printf ( "  %14.8g  %14.8g  %14.8g %14.8g\n", final_times[i], final_solution[i][0], final_solution[i][1], final_solution[i][2] );
-    }*/
+    //for(int i = 0; i < final_solution.size(); i++){
+    //  printf ( "  %14.8g  %14.8g  %14.8g %14.8g\n", final_times[i], final_solution[i][0], final_solution[i][1], final_solution[i][2] );
+    //}
     //cout << final_solution.size()<< std::endl;
     //std::cout << n_step << std::endl;
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
