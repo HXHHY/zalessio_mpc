@@ -9,15 +9,13 @@ namespace rpg_mpc {
 
 ModelPredictiveControlTrajectories::ModelPredictiveControlTrajectories(ros::NodeHandle& nh_)
 :nh(nh_)
-{}
+{
+  desired_trajectory_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("desired_trajectory", 1);
+}
 ModelPredictiveControlTrajectories::~ModelPredictiveControlTrajectories(){}
 
-
-
-void ModelPredictiveControlTrajectories::visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory,  ros::NodeHandle & nh_)
+void ModelPredictiveControlTrajectories::visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory)
 {
-  ros::Publisher desired_trajectory_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("desired_trajectory", 1);
-
   visualization_msgs::MarkerArray delete_msg;
   for (int i = 0; i < 10000; i++)
   {
@@ -79,7 +77,6 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::s
   return trajectory;
 }
 
-//Two simple helper function to make testing easier
 const char* ModelPredictiveControlTrajectories::GetInputFeasibilityResultName(RapidTrajectoryGenerator::InputFeasibilityResult fr)
 {
   switch (fr)
@@ -97,7 +94,6 @@ const char* ModelPredictiveControlTrajectories::GetInputFeasibilityResultName(Ra
   }
   return "Unknown!";
 }
-;
 
 const char* ModelPredictiveControlTrajectories::GetStateFeasibilityResultName(RapidTrajectoryGenerator::StateFeasibilityResult fr)
 {
@@ -121,8 +117,8 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::f
                    (initial_condition.twist.twist.linear.z - previous_initial_condition_.twist.twist.linear.z)/dt); //acceleration
 
   double fmin = 5;//[m/s**2]
-  double fmax = 50;//[m/s**2]
-  double wmax = 40;//[rad/s]
+  double fmax = 500;//25//[m/s**2]
+  double wmax = 400;//20//[rad/s]
   double minTimeSec = 0.02;//[s]
 
   //Define how gravity lies in our coordinate system
@@ -172,9 +168,25 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::f
     }
   }
 
-  double trajectory_dt = 0.01;
-  std::vector<quad_common::QuadDesiredState> trajectory = sampleTrajectory(optimal_trajectory_, optimal_time_, trajectory_dt);
-  visualizeTrajectory(trajectory,nh);
+  std::vector<quad_common::QuadDesiredState> trajectory;
+  if(set_first_optimal){
+    double trajectory_dt = 0.1;
+    trajectory = sampleTrajectory(optimal_trajectory_, optimal_time_, trajectory_dt);
+    visualizeTrajectory(trajectory);
+  }else{
+    quad_common::QuadDesiredState current_state;
+
+    current_state.position = Eigen::Vector3d(initial_condition.pose.pose.position.x, initial_condition.pose.pose.position.y, initial_condition.pose.pose.position.z);
+    current_state.velocity = Eigen::Vector3d(initial_condition.twist.twist.linear.x, initial_condition.twist.twist.linear.y, initial_condition.twist.twist.linear.z);
+    current_state.acceleration = Eigen::Vector3d((initial_condition.twist.twist.linear.x - previous_initial_condition_.twist.twist.linear.x)/dt,
+                                                 (initial_condition.twist.twist.linear.y - previous_initial_condition_.twist.twist.linear.y)/dt,
+                                                 (initial_condition.twist.twist.linear.z - previous_initial_condition_.twist.twist.linear.z)/dt);
+    current_state.yaw = 0.0;
+
+    trajectory.push_back(current_state);
+    trajectory.push_back(current_state);
+
+  }
   return trajectory;
 }
 

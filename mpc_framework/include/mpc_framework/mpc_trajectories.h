@@ -33,11 +33,12 @@ namespace rpg_mpc {
    private:
     //variables
     ros::NodeHandle nh;
+    ros::Publisher desired_trajectory_pub_;
 
     //functions
     const char* GetInputFeasibilityResultName(RapidTrajectoryGenerator::InputFeasibilityResult fr);
     const char* GetStateFeasibilityResultName(RapidTrajectoryGenerator::StateFeasibilityResult fr);
-    void visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory, ros::NodeHandle& nh_);
+    void visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory);
     std::vector<quad_common::QuadDesiredState> sampleTrajectory(RapidTrajectoryGenerator traj, double duration, double dt);
 
   };

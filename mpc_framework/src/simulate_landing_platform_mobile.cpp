@@ -23,7 +23,6 @@ int main(int argc, char **argv)
   tf::Transform transform;
 
   double dt_ = 0.1;
-
   msg.pose.pose.position.x = 0.2;
   msg.pose.pose.position.y = 0.2;
   msg.pose.pose.position.z = 0.3;
@@ -43,6 +42,8 @@ int main(int argc, char **argv)
   {
     final_possible_conditions_ = system_dynamics_.symulateUGV(0.0, dt_, dt_, msg);
     msg = final_possible_conditions_[1];
+    msg.header.frame_id = "world";
+    msg.child_frame_id = "/platform";
     msg.header.stamp = ros::Time::now();
 
     odometry_platform_pub.publish(msg);

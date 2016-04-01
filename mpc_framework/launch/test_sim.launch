@@ -1,12 +1,13 @@
 <launch>
 
   <!-- PARAMETERS -->
-  <arg name="mav_name" default="firefly"/>
+  <arg name="mav_name" default="hummingbird"/>
 
   <!-- ROTORS SIMULATION -->
-  <include file="$(find rotors_gazebo)/launch/mav_empty_world.launch">
+  <include file="$(find rpg_rotors_interface)/launch/quadrotor_empty_world.launch">
      <arg name="mav_name" value="$(arg mav_name)" />
      <arg name="enable_ground_truth" value="true"/>
+     <arg name="gui" value="false"/>
   </include>
 
   <!-- MOBILE PLATFORM SIMULATION -->
@@ -19,7 +20,7 @@
      <arg name="mav_name" value="$(arg mav_name)" />
   </include>
 
-  <!-- CONTROLLER -->
+  <!-- RPG_CONTROLLER -->
   <include file="$(find mpc_framework)/launch/controller.launch">
    	<arg name="mav_name" value="$(arg mav_name)" />
   </include>
