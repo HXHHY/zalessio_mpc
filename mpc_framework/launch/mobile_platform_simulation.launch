@@ -1,0 +1,9 @@
+<launch>
+ <arg name="mav_name" default="firefly" />
+
+  <group ns="$(arg mav_name)">
+    <node name="platform_simulation" pkg="mpc_framework" type="mobile_platform_simulation" respawn="true" clear_params="true" output="screen">
+    </node>
+  </group>
+
+</launch>

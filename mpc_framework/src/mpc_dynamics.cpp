@@ -8,7 +8,7 @@
 
 namespace rpg_mpc {
 
-ModelPredictiveControlDynamics::ModelPredictiveControlDynamics(){
+ModelPredictiveControlDynamics::ModelPredictiveControlDynamics(ros::NodeHandle& nh_){
   m = 1.56779;
   Ixx = 3.47563e-2;
   Iyy = 3.47563e-2;
@@ -40,6 +40,7 @@ void ModelPredictiveControlDynamics::saveDynamics( const state_type &x , const d
     x_odom.twist.twist.angular.x = x[10];
     x_odom.twist.twist.angular.y = x[11];
     x_odom.twist.twist.angular.z = x[12];
+
     final_solution_odometry_.push_back(x_odom);
   }
 }
@@ -65,6 +66,10 @@ ModelPredictiveControlDynamics::state_type ModelPredictiveControlDynamics::initi
                     initial_condition.twist.twist.angular.z
                   }};
   //final containers
+  final_solution_odometry_.resize(0);
+  final_times_.resize(0);
+  final_solution_.resize(0);
+
   final_solution_.reserve(n_step+1);
   final_times_.reserve(n_step+1);
   final_solution_odometry_.reserve(ceil((tf - tm)/dt) + 1);

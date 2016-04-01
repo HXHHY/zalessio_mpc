@@ -20,7 +20,7 @@ namespace rpg_mpc {
   class ModelPredictiveControlFramework
   {
    public:
-    ModelPredictiveControlFramework(ros::NodeHandle& );
+    ModelPredictiveControlFramework(ros::NodeHandle& nh_ );
     ~ModelPredictiveControlFramework();
 
    private:

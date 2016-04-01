@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   quad_msgs
   rapid_trajectories
+  tf
+  quad_common
 )
 
 include_directories(
@@ -29,6 +31,9 @@ cs_add_library(${PROJECT_NAME}_lib ${SOURCE_FILES})
 
 cs_add_executable(rpg_mpc_framework src/mpc_framework.cpp)
 target_link_libraries(rpg_mpc_framework ${PROJECT_NAME}_lib)
+
+cs_add_executable(mobile_platform_simulation src/simulate_landing_platform_mobile.cpp)
+target_link_libraries(mobile_platform_simulation ${PROJECT_NAME}_lib)
 
 cs_install()
 cs_export()

@@ -1,0 +1,10 @@
+<launch>
+ <arg name="mav_name" default="firefly" />
+
+  <group ns="$(arg mav_name)">
+    <node name="mpc_framework" pkg="mpc_framework" type="rpg_mpc_framework" respawn="true" clear_params="true" output="screen">
+      <remap from="odometry_uav" to="ground_truth/odometry" />
+    </node>
+  </group>
+
+</launch>

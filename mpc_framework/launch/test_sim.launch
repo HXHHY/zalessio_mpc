@@ -1,0 +1,32 @@
+<launch>
+
+  <!-- PARAMETERS -->
+  <arg name="mav_name" default="firefly"/>
+
+  <!-- ROTORS SIMULATION -->
+  <include file="$(find rotors_gazebo)/launch/mav_empty_world.launch">
+     <arg name="mav_name" value="$(arg mav_name)" />
+     <arg name="enable_ground_truth" value="true"/>
+  </include>
+
+  <!-- MOBILE PLATFORM SIMULATION -->
+  <include file="$(find mpc_framework)/launch/mobile_platform_simulation.launch">
+     <arg name="mav_name" value="$(arg mav_name)" />
+  </include>
+
+  <!-- RPG_MPC -->
+  <include file="$(find mpc_framework)/launch/mpc_framework.launch">
+     <arg name="mav_name" value="$(arg mav_name)" />
+  </include>
+
+  <!-- CONTROLLER -->
+  <include file="$(find mpc_framework)/launch/controller.launch">
+   	<arg name="mav_name" value="$(arg mav_name)" />
+  </include>
+  <!--
+  <include file="$(find autonomous_fly)/launch/lee_controller.launch">
+    <arg name="mav_name" value="$(arg mav_name)" />
+  </include>
+  -->
+
+</launch>

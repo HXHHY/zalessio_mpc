@@ -7,19 +7,19 @@
 
 namespace rpg_mpc {
 
-ModelPredictiveControlFramework::ModelPredictiveControlFramework(ros::NodeHandle& nh)
-: mpc_calculations()
+ModelPredictiveControlFramework::ModelPredictiveControlFramework(ros::NodeHandle& nh_)
+: mpc_calculations(nh_)
 {
   //Subscriber odometry UAV
-  sub_odometry_uav_ = nh.subscribe("odometry_uav", 1,
+  sub_odometry_uav_ = nh_.subscribe("odometry_uav", 1,
                                &ModelPredictiveControlFramework::OdometryUavCallback,this);
   //Subscribers final position
-  sub_odometry_ugv_ = nh.subscribe("odometry_ugv", 1,
+  sub_odometry_ugv_ = nh_.subscribe("odometry_ugv", 1,
                                &ModelPredictiveControlFramework::OdometryUgvCallback,this);
-  sub_final_pose_   = nh.subscribe("final_pose", 1,
+  sub_final_pose_   = nh_.subscribe("final_pose", 1,
                                &ModelPredictiveControlFramework::FinalPoseCallback,this);
   //Publisher control
-  pub_angles_rate_thrust_ = nh.advertise<quad_msgs::BodyRateCommand>("body_rate_command", 1);
+  pub_angles_rate_thrust_ = nh_.advertise<quad_msgs::BodyRateCommand>("body_rate_command", 1);
 
 }
 

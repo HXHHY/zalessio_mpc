@@ -23,7 +23,7 @@ namespace rpg_mpc {
   class ModelPredictiveControlDynamics
   {
    public:
-    ModelPredictiveControlDynamics();
+    ModelPredictiveControlDynamics(ros::NodeHandle& nh_);
     ~ModelPredictiveControlDynamics();
 
     // Functions
