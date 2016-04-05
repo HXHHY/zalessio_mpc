@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rapid_trajectories
   tf
   quad_common
+  landing_base_detection
 )
 
 include_directories(

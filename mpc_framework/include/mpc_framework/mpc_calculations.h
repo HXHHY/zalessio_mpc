@@ -24,14 +24,13 @@ namespace rpg_mpc {
   {
    public:
     ModelPredictiveControlCalculations(ros::NodeHandle& nh_);
-    ModelPredictiveControlCalculations(ros::NodeHandle& nh_,double average_velocity, double dt);
     ~ModelPredictiveControlCalculations();
 
     //functions
-    void SetFinalCondition( geometry_msgs::PoseStamped& );
-    void SetPossibleFinalConditions( nav_msgs::Odometry& );
-    void SetInitialCondition( nav_msgs::Odometry& );
-    void CalculateControlInput( Eigen::Vector4d);
+    void setFinalCondition( geometry_msgs::PoseStamped& );
+    void setPossibleFinalConditions( nav_msgs::Odometry& );
+    void setInitialCondition( nav_msgs::Odometry& );
+    void calculateControlInput( Eigen::Vector4d);
 
    private:
     //variables
@@ -44,15 +43,22 @@ namespace rpg_mpc {
     nav_msgs::Odometry previous_initial_condition_;
     std::vector<nav_msgs::Odometry> final_possible_conditions_;
     nav_msgs::Odometry final_condition_;
-    double average_velocity_;
-    double dt_;
     bool initial_condition_set_;
     bool final_condition_set_;
+    bool swich_off_copilot_;
+    bool start_landing_;
+    //params
+    double average_velocity_;
+    double dt_;
+    double min_distance_for_calculate_trajectory_;
+    double min_distance_target_is_reached_;
+
     //functions
     ros::Time averageTime();
-    void saveFinalPose( geometry_msgs::PoseStamped& pose_);
-    void saveFinalPose( nav_msgs::Odometry& odom_);
     double distanceInitialFinalPosition();
+    double distance2DInitialFinalPosition();
+    void initializeParams();
+    void checkIfTargetReached();
   };
 
 }

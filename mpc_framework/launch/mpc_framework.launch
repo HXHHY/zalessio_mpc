@@ -1,9 +1,26 @@
 <launch>
- <arg name="mav_name" default="firefly" />
+ <arg name="mav_name" default="hummingbird" />
+ <arg name="average_velocity_uav" default="1.0" />
+ <arg name="min_distance_for_calculate_trajectory" default="6.0" />
+ <arg name="min_distance_target_is_reached" default="0.1" />
+ <arg name="fmin" default="5.0" />
+ <arg name="fmax" default="50.0" />
+ <arg name="wmax" default="40.0" />
+ <arg name="minTimeSec" default="0.02" />
+ <arg name="min_high_upon_base" default="0.5" />
+
 
   <group ns="$(arg mav_name)">
     <node name="mpc_framework" pkg="mpc_framework" type="rpg_mpc_framework" respawn="true" clear_params="true" output="screen">
       <remap from="odometry_uav" to="ground_truth/odometry" />
+      <param name="average_velocity_uav" type="double" value="$(arg average_velocity_uav)" />
+      <param name="min_distance_for_calculate_trajectory" type="double" value="$(arg min_distance_for_calculate_trajectory)" />
+      <param name="min_distance_target_is_reached" type="double" value="$(arg min_distance_target_is_reached)" />
+      <param name="fmin" type="double" value="$(arg fmin)" />
+      <param name="fmax" type="double" value="$(arg fmax)" />
+      <param name="wmax" type="double" value="$(arg wmax)" />
+      <param name="minTimeSec" type="double" value="$(arg minTimeSec)" />
+      <param name="min_high_upon_base" type="double" value="$(arg min_high_upon_base)" />
     </node>
   </group>
 

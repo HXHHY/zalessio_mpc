@@ -34,13 +34,20 @@ namespace rpg_mpc {
     //variables
     ros::NodeHandle nh;
     ros::Publisher desired_trajectory_pub_;
+    //params
+    double fmin;//[m/s**2]
+    double fmax;//25//[m/s**2]
+    double wmax;//20//[rad/s]
+    double minTimeSec;//0.02[s]
+    double min_high_upon_base_;
 
     //functions
     const char* GetInputFeasibilityResultName(RapidTrajectoryGenerator::InputFeasibilityResult fr);
     const char* GetStateFeasibilityResultName(RapidTrajectoryGenerator::StateFeasibilityResult fr);
     void visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory);
     std::vector<quad_common::QuadDesiredState> sampleTrajectory(RapidTrajectoryGenerator traj, double duration, double dt);
-
+    std::vector<quad_common::QuadDesiredState> thirdOrderPolynomialTrajectory(nav_msgs::Odometry& initial_condition, nav_msgs::Odometry& final_condition,double tf, double dt);
+    void initializeParams();
   };
 
 }

@@ -4,30 +4,43 @@
   <arg name="mav_name" default="hummingbird"/>
 
   <!-- ROTORS SIMULATION -->
-  <include file="$(find rpg_rotors_interface)/launch/quadrotor_empty_world.launch">
+  <include file="$(find mpc_framework)/launch/quadrotor_platform_empty_world.launch">
      <arg name="mav_name" value="$(arg mav_name)" />
      <arg name="enable_ground_truth" value="true"/>
+     <arg name="x_init" value="3.0"/>
+     <arg name="y_init" value="-3.0"/>
      <arg name="gui" value="false"/>
   </include>
 
   <!-- MOBILE PLATFORM SIMULATION -->
   <include file="$(find mpc_framework)/launch/mobile_platform_simulation.launch">
      <arg name="mav_name" value="$(arg mav_name)" />
+     <arg name="vel_x" value="0.1" />
+     <arg name="vel_y" value="0.0" />
+     <arg name="variance_1m" value="0.1" />
+  </include>
+
+  <!-- MOBILE PLATFORM DETECTION AND TRACKING TODO -->
+  <include file="$(find mpc_framework)/launch/mobile_platform_detection_tracking.launch">
+     <arg name="mav_name" value="$(arg mav_name)" />
   </include>
 
   <!-- RPG_MPC -->
   <include file="$(find mpc_framework)/launch/mpc_framework.launch">
      <arg name="mav_name" value="$(arg mav_name)" />
+     <arg name="average_velocity_uav" value="1.0" />
+     <arg name="min_distance_for_calculate_trajectory" value="5.0" />
+     <arg name="min_distance_target_is_reached" value="0.1" />
+     <arg name="fmin" value="5.0" />
+     <arg name="fmax" value="25.0" />
+     <arg name="wmax" value="20.0" />
+     <arg name="minTimeSec" value="0.02" />
+     <arg name="min_high_upon_base" value="0.5" />
   </include>
 
   <!-- RPG_CONTROLLER -->
   <include file="$(find mpc_framework)/launch/controller.launch">
    	<arg name="mav_name" value="$(arg mav_name)" />
   </include>
-  <!--
-  <include file="$(find autonomous_fly)/launch/lee_controller.launch">
-    <arg name="mav_name" value="$(arg mav_name)" />
-  </include>
-  -->
 
 </launch>

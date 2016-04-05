@@ -1,8 +1,16 @@
 <launch>
- <arg name="mav_name" default="firefly" />
+ <!--node pkg="tf" type="static_transform_publisher" name="world_odom" args="0 0 0 0 0 0 /world /odom 100"/-->
+ <arg name="mav_name" default="hummingbird" />
+ <arg name="vel_x" default="0.0" />
+ <arg name="vel_y" default="0.0" />
+ <arg name="variance_1m" default="0.01" />
 
   <group ns="$(arg mav_name)">
     <node name="platform_simulation" pkg="mpc_framework" type="mobile_platform_simulation" respawn="true" clear_params="true" output="screen">
+      <remap from="velocity_husky" to="/husky/husky_velocity_controller/cmd_vel" />
+      <param name="vel_x" type="double" value="$(arg vel_x)" />
+      <param name="vel_y" type="double" value="$(arg vel_y)" />
+      <param name="variance_1m" type="double" value="$(arg variance_1m)" />
     </node>
   </group>
 

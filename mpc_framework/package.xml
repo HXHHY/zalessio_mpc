@@ -18,6 +18,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>quad_msgs</build_depend>
   <build_depend>rapid_trajectories</build_depend>
+  <build_depend>landing_base_detection</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
@@ -25,6 +26,8 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>quad_msgs</run_depend>
   <run_depend>rapid_trajectories</run_depend>
+  <run_depend>landing_base_detection</run_depend>
+
 
 
 

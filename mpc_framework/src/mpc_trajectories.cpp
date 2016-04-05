@@ -8,11 +8,44 @@
 namespace rpg_mpc {
 
 ModelPredictiveControlTrajectories::ModelPredictiveControlTrajectories(ros::NodeHandle& nh_)
-:nh(nh_)
+:nh(nh_),
+fmin(5.0),
+fmax(50.0),
+wmax(40.0),
+minTimeSec(0.02),
+min_high_upon_base_(0.5)
 {
+  initializeParams();
   desired_trajectory_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("desired_trajectory", 1);
 }
 ModelPredictiveControlTrajectories::~ModelPredictiveControlTrajectories(){}
+
+void ModelPredictiveControlTrajectories::initializeParams()
+{
+    ros::NodeHandle n_param ("~");
+
+    // **** get parameters
+    if (!n_param.getParam ("fmin", fmin))
+      fmin = 5.0;//[m/s**2]
+    ROS_INFO ("\t input constraint fmin: %d", fmin);
+
+    if (!n_param.getParam("fmax", fmax))
+      fmax = 50.0;//25//[m/s**2]
+    ROS_INFO("\t input constraint fmax: %f", fmax);
+
+    if (!n_param.getParam("wmax", wmax))
+      wmax = 40.0;//20//[rad/s]
+    ROS_INFO("\t input constraint wmax: %f", wmax);
+
+    if (!n_param.getParam("minTimeSec", minTimeSec))
+      minTimeSec = 0.02;//0.02[s]
+    ROS_INFO("\t input constraint minTimeSec: %f", minTimeSec);
+
+    if (!n_param.getParam("min_high_upon_base", min_high_upon_base_))
+      min_high_upon_base_ = 0.5;
+    ROS_INFO("\t min_high_upon_base: %f", min_high_upon_base_);
+
+}
 
 void ModelPredictiveControlTrajectories::visualizeTrajectory(std::vector<quad_common::QuadDesiredState> trajectory)
 {
@@ -77,6 +110,58 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::s
   return trajectory;
 }
 
+std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::thirdOrderPolynomialTrajectory(nav_msgs::Odometry& initial_condition, nav_msgs::Odometry& final_condition, double tf, double dt)
+{
+  double x0   = initial_condition.pose.pose.position.x;
+  double y0   = initial_condition.pose.pose.position.y;
+  double z0   = initial_condition.pose.pose.position.z;
+  double vx0  = initial_condition.twist.twist.linear.x;
+  double vy0  = initial_condition.twist.twist.linear.y;
+  double vz0  = initial_condition.twist.twist.linear.z;
+  double xf   = final_condition.pose.pose.position.x;
+  double yf   = final_condition.pose.pose.position.y;
+  double zf   = final_condition.pose.pose.position.z + min_high_upon_base_;
+  double yaw_ = 0.0;
+
+  double dx = x0;
+  double cx = vx0;
+  double bx = 3*(xf - x0)/(tf*tf) - 2*vx0/tf;
+  double ax = vx0/(tf*tf) + 2*(x0 - xf)/(tf*tf*tf);
+
+  double dy = y0;
+  double cy = vy0;
+  double by = 3*(yf - y0)/(tf*tf) - 2*vy0/tf;
+  double ay = vy0/(tf*tf) + 2*(y0 - yf)/(tf*tf*tf);
+
+  double dz = z0;
+  double cz = vz0;
+  double bz = 3*(zf - z0)/(tf*tf) - 2*vz0/tf;
+  double az = vz0/(tf*tf) + 2*(z0 - zf)/(tf*tf*tf);
+
+  std::vector<quad_common::QuadDesiredState> trajectory;
+  quad_common::QuadDesiredState current_state;
+  for (double t = 0.0; t <= tf; t += dt)
+  {
+    // Sample
+    double x_pos = ax*t*t*t + bx*t*t + cx*t + dx;
+    double y_pos = ay*t*t*t + by*t*t + cy*t + dy;
+    double z_pos = az*t*t*t + bz*t*t + cz*t + dz;
+    double x_vel = 3*ax*t*t + 2*bx*t + cx;
+    double y_vel = 3*ay*t*t + 2*by*t + cy;
+    double z_vel = 3*az*t*t + 2*bz*t + cz;
+    double x_acc = 6*ax*t + 2*bx;
+    double y_acc = 6*ay*t + 2*by;
+    double z_acc = 6*az*t + 2*bz;
+    current_state.position = Eigen::Vector3d(x_pos,y_pos,z_pos);
+    current_state.velocity = Eigen::Vector3d(x_vel,y_vel,z_vel);
+    current_state.acceleration = Eigen::Vector3d(x_acc,y_acc,z_acc);
+    current_state.yaw = 0.0;
+    trajectory.push_back(current_state);
+  }
+
+  return trajectory;
+}
+
 const char* ModelPredictiveControlTrajectories::GetInputFeasibilityResultName(RapidTrajectoryGenerator::InputFeasibilityResult fr)
 {
   switch (fr)
@@ -116,16 +201,11 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::f
                    (initial_condition.twist.twist.linear.y - previous_initial_condition_.twist.twist.linear.y)/dt,
                    (initial_condition.twist.twist.linear.z - previous_initial_condition_.twist.twist.linear.z)/dt); //acceleration
 
-  double fmin = 5;//[m/s**2]
-  double fmax = 500;//25//[m/s**2]
-  double wmax = 400;//20//[rad/s]
-  double minTimeSec = 0.02;//[s]
-
   //Define how gravity lies in our coordinate system
   Vec3 gravity = Vec3(0,0,-9.81);//[m/s**2]
 
   //Define the state constraints. We'll only check that we don't fly into the floor:
-  Vec3 floorPos = Vec3(0,0,0);//any point on the boundary
+  Vec3 floorPos = Vec3(0,0,final_possible_conditions[0].pose.pose.position.z);//any point on the boundary
   Vec3 floorNormal = Vec3(0,0,1);//we want to be in this direction of the boundary
 
   RapidTrajectoryGenerator traj(pos0, vel0, acc0, gravity);
@@ -137,8 +217,13 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::f
 
   for(int i = 0; i < final_possible_conditions.size(); i++){
     //define the goal state:
-    Vec3 posf = Vec3(final_possible_conditions[i].pose.pose.position.x, final_possible_conditions[i].pose.pose.position.y, final_possible_conditions[i].pose.pose.position.z); //position
-    Vec3 velf = Vec3(final_possible_conditions[i].twist.twist.linear.x, final_possible_conditions[i].twist.twist.linear.y, final_possible_conditions[i].twist.twist.linear.z); //velocity
+    Vec3 posf = Vec3(final_possible_conditions[i].pose.pose.position.x,
+                     final_possible_conditions[i].pose.pose.position.y,
+                     final_possible_conditions[i].pose.pose.position.z + min_high_upon_base_); //position
+    Vec3 velf = Vec3(final_possible_conditions[i].twist.twist.linear.x,
+                     final_possible_conditions[i].twist.twist.linear.y,
+                     final_possible_conditions[i].twist.twist.linear.z); //velocity
+    //Vec3 velf = Vec3(0, 0, 0);
     //leave final acceleration free
     //Vec3 accf = Vec3(0, 0, 0); //acceleration
 
@@ -169,23 +254,24 @@ std::vector<quad_common::QuadDesiredState> ModelPredictiveControlTrajectories::f
   }
 
   std::vector<quad_common::QuadDesiredState> trajectory;
+  double trajectory_dt = 0.1;
   if(set_first_optimal){
-    double trajectory_dt = 0.1;
     trajectory = sampleTrajectory(optimal_trajectory_, optimal_time_, trajectory_dt);
     visualizeTrajectory(trajectory);
   }else{
-    quad_common::QuadDesiredState current_state;
-
-    current_state.position = Eigen::Vector3d(initial_condition.pose.pose.position.x, initial_condition.pose.pose.position.y, initial_condition.pose.pose.position.z);
+    trajectory = thirdOrderPolynomialTrajectory(initial_condition, final_possible_conditions[0], final_possible_conditions[0].header.stamp.toSec(),trajectory_dt);
+    visualizeTrajectory(trajectory);
+    /*quad_common::QuadDesiredState current_state;
+    current_state.position = Eigen::Vector3d(initial_condition.pose.pose.position.x + 2*trajectory_dt*final_possible_conditions[0].twist.twist.linear.x*(final_possible_conditions[0].pose.pose.position.x - initial_condition.pose.pose.position.x),
+                                             initial_condition.pose.pose.position.y + 2*trajectory_dt*final_possible_conditions[0].twist.twist.linear.y*(final_possible_conditions[0].pose.pose.position.y - initial_condition.pose.pose.position.y),
+                                             std::max(initial_condition.pose.pose.position.z,final_possible_conditions[0].pose.pose.position.z + 0.2));// + trajectory_dt*(final_possible_conditions[0].pose.pose.position.z - initial_condition.pose.pose.position.z));
     current_state.velocity = Eigen::Vector3d(initial_condition.twist.twist.linear.x, initial_condition.twist.twist.linear.y, initial_condition.twist.twist.linear.z);
     current_state.acceleration = Eigen::Vector3d((initial_condition.twist.twist.linear.x - previous_initial_condition_.twist.twist.linear.x)/dt,
                                                  (initial_condition.twist.twist.linear.y - previous_initial_condition_.twist.twist.linear.y)/dt,
                                                  (initial_condition.twist.twist.linear.z - previous_initial_condition_.twist.twist.linear.z)/dt);
     current_state.yaw = 0.0;
-
     trajectory.push_back(current_state);
-    trajectory.push_back(current_state);
-
+    trajectory.push_back(current_state);*/
   }
   return trajectory;
 }
